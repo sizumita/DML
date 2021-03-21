@@ -4,12 +4,18 @@ type token =
   | Minus
   | Div
   | Mul
+  | Lb
+  | Rb
+  | Bracket of token list
+  | Err
 
 type expr =
   | Func of string * expr list * expr
   | Call of string * expr list
   | Const of int
   | EOF
+  | Unit
+  | Test of token
 
 
 let numbers = [
@@ -33,6 +39,9 @@ let print_tokens lst =
       | Minus -> "-"
       | Div -> "/"
       | Mul -> "*"
+      | Lb -> "("
+      | Rb -> ")"
+      | _ -> "..."
     ) lst
   |> String.concat " "
   |> print_endline
@@ -66,6 +75,8 @@ let tokenize base =
       | '-' -> loop (pointer+1) @@ Minus :: result
       | '/' -> loop (pointer+1) @@ Div :: result
       | '*' -> loop (pointer+1) @@ Mul :: result
+      | '(' -> loop (pointer+1) @@ Lb :: result
+      | ')' -> loop (pointer+1) @@ Rb :: result
       | _ ->
     let (pointer, i) = expect_int pointer base
     in loop pointer @@ (Cons i) :: result
@@ -84,19 +95,47 @@ let expect_any tokens target =
 
 let parse tokens =
   let rec loop lst result =
-    if List.mem Plus lst then
-      let (r, l) = expect_any lst Plus in Call ("+", [loop r []; loop l []])
-    else if List.mem Minus lst then
-      let (r, l) = expect_any lst Minus in Call ("-", [loop r []; loop l []])
-    else if List.mem Div lst then
-      let (r, l) = expect_any lst Div in Call ("/", [loop r []; loop l []])
-    else if List.mem Mul lst then
-      let (r, l) = expect_any lst Mul in Call ("*", [loop r []; loop l []])
-    else
-      match lst with
-        | (Cons x) :: [] -> Const x
-        | _ -> EOF
+    match lst with
+      | (Cons x) :: [] -> Const x
+      | (Cons x) :: [Rb] -> Const x
+      | (Bracket l) :: [] -> loop l []
+      | Lb :: rest ->
+        (match bracket rest true with
+          | Bracket [] -> Unit
+          | Bracket l -> loop l []
+          | _ -> EOF)
+      | _ ->
+        if List.mem Lb lst 
+          then match bracket lst false with
+            | Bracket [] -> Unit
+            | Bracket l -> loop l []
+            | _ -> split_symbols lst
+          else split_symbols lst
 
+  and split_symbols lst =
+    if List.mem Plus lst then
+        let (r, l) = expect_any lst Plus in Call ("+", [loop r []; loop l []])
+      else if List.mem Minus lst then
+        let (r, l) = expect_any lst Minus in Call ("-", [loop r []; loop l []])
+      else if List.mem Div lst then
+        let (r, l) = expect_any lst Div in Call ("/", [loop r []; loop l []])
+      else if List.mem Mul lst then
+        let (r, l) = expect_any lst Mul in Call ("*", [loop r []; loop l []])
+      else EOF
+
+  and bracket tokens_ is_expcted =
+    let rec loop_ lst result =
+      match lst with
+      | [] -> if is_expcted then (Err, []) else (Bracket (List.rev result), [])
+      | first :: rest ->
+        if first = Lb
+          then
+            let (bracket, rest) = loop_ rest [] 
+            in loop_ rest @@ bracket :: result
+        else if first = Rb
+          then (Bracket (List.rev result), rest)
+          else loop_ rest @@ first :: result
+    in let (bracket, _) = loop_ tokens_ [] in bracket
   in loop tokens []
 
 
