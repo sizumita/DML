@@ -4,6 +4,12 @@ type token =
   | ID of (string)
   | FUN
   | ARROW
+  | EQUAL
+  | SEMICOLON
+  | IF
+  | THEN
+  | ELSE
+  | LET
   | PLUS
   | MINUS
   | TIMES
