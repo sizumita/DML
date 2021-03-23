@@ -13,19 +13,26 @@
    9       | expr MINUS expr
   10       | expr TIMES expr
   11       | expr DIV expr
-  12       | IF expr THEN expr ELSE expr
-  13       | MINUS expr
-  14       | LET ID EQUAL expr
-  15       | LET ID fargs EQUAL expr
-  16       | simple_expr cargs
+  12       | expr EQUAL expr
+  13       | expr NOT_EQUAL expr
+  14       | expr LESS expr
+  15       | expr GREATER expr
+  16       | expr LESS_EQUAL expr
+  17       | expr GREATER_EQUAL expr
+  18       | IF expr THEN expr ELSE expr
+  19       | MINUS expr
+  20       | LET ID EQUAL expr
+  21       | LET ID fargs EQUAL expr
+  22       | simple_expr cargs
+  23       | error
 
-  17  fargs : fargs ID
-  18        | ID
+  24  fargs : fargs ID
+  25        | ID
 
-  19  cargs : cargs simple_expr
-  20        | simple_expr
+  26  cargs : cargs simple_expr
+  27        | simple_expr
 
-  21  %entry% : '\001' prog
+  28  %entry% : '\001' prog
 
 state 0
 	$accept : . %entry% $end  (0)
@@ -37,20 +44,21 @@ state 0
 
 
 state 1
-	%entry% : '\001' . prog  (21)
+	%entry% : '\001' . prog  (28)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
 
-	prog  goto 10
-	expr  goto 11
-	simple_expr  goto 12
+	prog  goto 11
+	expr  goto 12
+	simple_expr  goto 13
 
 
 state 2
@@ -60,114 +68,141 @@ state 2
 
 
 state 3
+	expr : error .  (23)
+
+	.  reduce 23
+
+
+state 4
 	simple_expr : NUM .  (2)
 
 	.  reduce 2
 
 
-state 4
+state 5
 	simple_expr : ID .  (3)
 
 	.  reduce 3
 
 
-state 5
+state 6
 	expr : FUN . fargs ARROW expr  (7)
 
-	ID  shift 13
+	ID  shift 14
 	.  error
 
-	fargs  goto 14
-
-
-state 6
-	expr : IF . expr THEN expr ELSE expr  (12)
-
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
-	.  error
-
-	expr  goto 15
-	simple_expr  goto 12
+	fargs  goto 15
 
 
 state 7
-	expr : LET . ID EQUAL expr  (14)
-	expr : LET . ID fargs EQUAL expr  (15)
+	expr : IF . expr THEN expr ELSE expr  (18)
 
-	ID  shift 16
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
+
+	expr  goto 16
+	simple_expr  goto 13
 
 
 state 8
-	expr : MINUS . expr  (13)
+	expr : LET . ID EQUAL expr  (20)
+	expr : LET . ID fargs EQUAL expr  (21)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
+	ID  shift 17
 	.  error
-
-	expr  goto 17
-	simple_expr  goto 12
 
 
 state 9
-	simple_expr : LP . expr RP  (4)
-	simple_expr : LP . RP  (5)
+	expr : MINUS . expr  (19)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	RP  shift 18
-	LP  shift 9
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
 
-	expr  goto 19
-	simple_expr  goto 12
+	expr  goto 18
+	simple_expr  goto 13
 
 
 state 10
-	%entry% : '\001' prog .  (21)
+	simple_expr : LP . expr RP  (4)
+	simple_expr : LP . RP  (5)
 
-	.  reduce 21
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	RP  shift 19
+	LP  shift 10
+	.  error
+
+	expr  goto 20
+	simple_expr  goto 13
 
 
 state 11
+	%entry% : '\001' prog .  (28)
+
+	.  reduce 28
+
+
+state 12
 	prog : expr . EOL  (1)
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
 
-	PLUS  shift 20
-	MINUS  shift 21
-	TIMES  shift 22
-	DIV  shift 23
-	EOL  shift 24
+	EQUAL  shift 21
+	NOT_EQUAL  shift 22
+	GREATER_EQUAL  shift 23
+	LESS_EQUAL  shift 24
+	LESS  shift 25
+	GREATER  shift 26
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	EOL  shift 31
 	.  error
 
 
-state 12
+state 13
 	expr : simple_expr .  (6)
-	expr : simple_expr . cargs  (16)
+	expr : simple_expr . cargs  (22)
 
-	NUM  shift 3
-	ID  shift 4
-	LP  shift 9
+	NUM  shift 4
+	ID  shift 5
+	LP  shift 10
+	EQUAL  reduce 6
 	THEN  reduce 6
 	ELSE  reduce 6
+	NOT_EQUAL  reduce 6
+	GREATER_EQUAL  reduce 6
+	LESS_EQUAL  reduce 6
+	LESS  reduce 6
+	GREATER  reduce 6
 	PLUS  reduce 6
 	MINUS  reduce 6
 	TIMES  reduce 6
@@ -175,427 +210,926 @@ state 12
 	RP  reduce 6
 	EOL  reduce 6
 
-	simple_expr  goto 25
-	cargs  goto 26
-
-
-state 13
-	fargs : ID .  (18)
-
-	.  reduce 18
+	simple_expr  goto 32
+	cargs  goto 33
 
 
 state 14
-	expr : FUN fargs . ARROW expr  (7)
-	fargs : fargs . ID  (17)
+	fargs : ID .  (25)
 
-	ID  shift 27
-	ARROW  shift 28
-	.  error
+	.  reduce 25
 
 
 state 15
-	expr : expr . PLUS expr  (8)
-	expr : expr . MINUS expr  (9)
-	expr : expr . TIMES expr  (10)
-	expr : expr . DIV expr  (11)
-	expr : IF expr . THEN expr ELSE expr  (12)
+	expr : FUN fargs . ARROW expr  (7)
+	fargs : fargs . ID  (24)
 
-	THEN  shift 29
-	PLUS  shift 20
-	MINUS  shift 21
-	TIMES  shift 22
-	DIV  shift 23
+	ID  shift 34
+	ARROW  shift 35
 	.  error
 
 
 state 16
-	expr : LET ID . EQUAL expr  (14)
-	expr : LET ID . fargs EQUAL expr  (15)
-
-	ID  shift 13
-	EQUAL  shift 30
-	.  error
-
-	fargs  goto 31
-
-
-state 17
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
-	expr : MINUS expr .  (13)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+	expr : IF expr . THEN expr ELSE expr  (18)
 
-	.  reduce 13
+	EQUAL  shift 21
+	THEN  shift 36
+	NOT_EQUAL  shift 22
+	GREATER_EQUAL  shift 23
+	LESS_EQUAL  shift 24
+	LESS  shift 25
+	GREATER  shift 26
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	.  error
 
 
+state 17
+	expr : LET ID . EQUAL expr  (20)
+	expr : LET ID . fargs EQUAL expr  (21)
+
+	ID  shift 14
+	EQUAL  shift 37
+	.  error
+
+	fargs  goto 38
+
+
+18: shift/reduce conflict (shift 22, reduce 19) on NOT_EQUAL
 state 18
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+	expr : MINUS expr .  (19)
+
+	NOT_EQUAL  shift 22
+	EQUAL  reduce 19
+	THEN  reduce 19
+	ELSE  reduce 19
+	GREATER_EQUAL  reduce 19
+	LESS_EQUAL  reduce 19
+	LESS  reduce 19
+	GREATER  reduce 19
+	PLUS  reduce 19
+	MINUS  reduce 19
+	TIMES  reduce 19
+	DIV  reduce 19
+	RP  reduce 19
+	EOL  reduce 19
+
+
+state 19
 	simple_expr : LP RP .  (5)
 
 	.  reduce 5
 
 
-state 19
+state 20
 	simple_expr : LP expr . RP  (4)
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
 
-	PLUS  shift 20
-	MINUS  shift 21
-	TIMES  shift 22
-	DIV  shift 23
-	RP  shift 32
+	EQUAL  shift 21
+	NOT_EQUAL  shift 22
+	GREATER_EQUAL  shift 23
+	LESS_EQUAL  shift 24
+	LESS  shift 25
+	GREATER  shift 26
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	RP  shift 39
 	.  error
-
-
-state 20
-	expr : expr PLUS . expr  (8)
-
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
-	.  error
-
-	expr  goto 33
-	simple_expr  goto 12
 
 
 state 21
-	expr : expr MINUS . expr  (9)
+	expr : expr EQUAL . expr  (12)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
 
-	expr  goto 34
-	simple_expr  goto 12
+	expr  goto 40
+	simple_expr  goto 13
 
 
 state 22
-	expr : expr TIMES . expr  (10)
+	expr : expr NOT_EQUAL . expr  (13)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
 
-	expr  goto 35
-	simple_expr  goto 12
+	expr  goto 41
+	simple_expr  goto 13
 
 
 state 23
-	expr : expr DIV . expr  (11)
+	expr : expr GREATER_EQUAL . expr  (17)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
 
-	expr  goto 36
-	simple_expr  goto 12
+	expr  goto 42
+	simple_expr  goto 13
 
 
 state 24
+	expr : expr LESS_EQUAL . expr  (16)
+
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
+	.  error
+
+	expr  goto 43
+	simple_expr  goto 13
+
+
+state 25
+	expr : expr LESS . expr  (14)
+
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
+	.  error
+
+	expr  goto 44
+	simple_expr  goto 13
+
+
+state 26
+	expr : expr GREATER . expr  (15)
+
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
+	.  error
+
+	expr  goto 45
+	simple_expr  goto 13
+
+
+state 27
+	expr : expr PLUS . expr  (8)
+
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
+	.  error
+
+	expr  goto 46
+	simple_expr  goto 13
+
+
+state 28
+	expr : expr MINUS . expr  (9)
+
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
+	.  error
+
+	expr  goto 47
+	simple_expr  goto 13
+
+
+state 29
+	expr : expr TIMES . expr  (10)
+
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
+	.  error
+
+	expr  goto 48
+	simple_expr  goto 13
+
+
+state 30
+	expr : expr DIV . expr  (11)
+
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
+	.  error
+
+	expr  goto 49
+	simple_expr  goto 13
+
+
+state 31
 	prog : expr EOL .  (1)
 
 	.  reduce 1
 
 
-state 25
-	cargs : simple_expr .  (20)
+state 32
+	cargs : simple_expr .  (27)
 
-	.  reduce 20
-
-
-state 26
-	expr : simple_expr cargs .  (16)
-	cargs : cargs . simple_expr  (19)
-
-	NUM  shift 3
-	ID  shift 4
-	LP  shift 9
-	THEN  reduce 16
-	ELSE  reduce 16
-	PLUS  reduce 16
-	MINUS  reduce 16
-	TIMES  reduce 16
-	DIV  reduce 16
-	RP  reduce 16
-	EOL  reduce 16
-
-	simple_expr  goto 37
+	.  reduce 27
 
 
-state 27
-	fargs : fargs ID .  (17)
+state 33
+	expr : simple_expr cargs .  (22)
+	cargs : cargs . simple_expr  (26)
 
-	.  reduce 17
+	NUM  shift 4
+	ID  shift 5
+	LP  shift 10
+	EQUAL  reduce 22
+	THEN  reduce 22
+	ELSE  reduce 22
+	NOT_EQUAL  reduce 22
+	GREATER_EQUAL  reduce 22
+	LESS_EQUAL  reduce 22
+	LESS  reduce 22
+	GREATER  reduce 22
+	PLUS  reduce 22
+	MINUS  reduce 22
+	TIMES  reduce 22
+	DIV  reduce 22
+	RP  reduce 22
+	EOL  reduce 22
+
+	simple_expr  goto 50
 
 
-state 28
+state 34
+	fargs : fargs ID .  (24)
+
+	.  reduce 24
+
+
+state 35
 	expr : FUN fargs ARROW . expr  (7)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
 
-	expr  goto 38
-	simple_expr  goto 12
+	expr  goto 51
+	simple_expr  goto 13
 
 
-state 29
-	expr : IF expr THEN . expr ELSE expr  (12)
+state 36
+	expr : IF expr THEN . expr ELSE expr  (18)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
 
-	expr  goto 39
-	simple_expr  goto 12
+	expr  goto 52
+	simple_expr  goto 13
 
 
-state 30
-	expr : LET ID EQUAL . expr  (14)
+state 37
+	expr : LET ID EQUAL . expr  (20)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
 
-	expr  goto 40
-	simple_expr  goto 12
+	expr  goto 53
+	simple_expr  goto 13
 
 
-state 31
-	expr : LET ID fargs . EQUAL expr  (15)
-	fargs : fargs . ID  (17)
+state 38
+	expr : LET ID fargs . EQUAL expr  (21)
+	fargs : fargs . ID  (24)
 
-	ID  shift 27
-	EQUAL  shift 41
+	ID  shift 34
+	EQUAL  shift 54
 	.  error
 
 
-state 32
+state 39
 	simple_expr : LP expr RP .  (4)
 
 	.  reduce 4
 
 
-state 33
+40: shift/reduce conflict (shift 22, reduce 12) on NOT_EQUAL
+state 40
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr EQUAL expr .  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+
+	NOT_EQUAL  shift 22
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	EQUAL  reduce 12
+	THEN  reduce 12
+	ELSE  reduce 12
+	GREATER_EQUAL  reduce 12
+	LESS_EQUAL  reduce 12
+	LESS  reduce 12
+	GREATER  reduce 12
+	RP  reduce 12
+	EOL  reduce 12
+
+
+41: shift/reduce conflict (shift 21, reduce 13) on EQUAL
+41: shift/reduce conflict (shift 22, reduce 13) on NOT_EQUAL
+41: shift/reduce conflict (shift 23, reduce 13) on GREATER_EQUAL
+41: shift/reduce conflict (shift 24, reduce 13) on LESS_EQUAL
+41: shift/reduce conflict (shift 25, reduce 13) on LESS
+41: shift/reduce conflict (shift 26, reduce 13) on GREATER
+41: shift/reduce conflict (shift 27, reduce 13) on PLUS
+41: shift/reduce conflict (shift 28, reduce 13) on MINUS
+41: shift/reduce conflict (shift 29, reduce 13) on TIMES
+41: shift/reduce conflict (shift 30, reduce 13) on DIV
+state 41
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr NOT_EQUAL expr .  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+
+	EQUAL  shift 21
+	NOT_EQUAL  shift 22
+	GREATER_EQUAL  shift 23
+	LESS_EQUAL  shift 24
+	LESS  shift 25
+	GREATER  shift 26
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	THEN  reduce 13
+	ELSE  reduce 13
+	RP  reduce 13
+	EOL  reduce 13
+
+
+42: shift/reduce conflict (shift 22, reduce 17) on NOT_EQUAL
+state 42
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+	expr : expr GREATER_EQUAL expr .  (17)
+
+	NOT_EQUAL  shift 22
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	EQUAL  reduce 17
+	THEN  reduce 17
+	ELSE  reduce 17
+	GREATER_EQUAL  reduce 17
+	LESS_EQUAL  reduce 17
+	LESS  reduce 17
+	GREATER  reduce 17
+	RP  reduce 17
+	EOL  reduce 17
+
+
+43: shift/reduce conflict (shift 22, reduce 16) on NOT_EQUAL
+state 43
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr LESS_EQUAL expr .  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+
+	NOT_EQUAL  shift 22
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	EQUAL  reduce 16
+	THEN  reduce 16
+	ELSE  reduce 16
+	GREATER_EQUAL  reduce 16
+	LESS_EQUAL  reduce 16
+	LESS  reduce 16
+	GREATER  reduce 16
+	RP  reduce 16
+	EOL  reduce 16
+
+
+44: shift/reduce conflict (shift 22, reduce 14) on NOT_EQUAL
+state 44
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr LESS expr .  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+
+	NOT_EQUAL  shift 22
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	EQUAL  reduce 14
+	THEN  reduce 14
+	ELSE  reduce 14
+	GREATER_EQUAL  reduce 14
+	LESS_EQUAL  reduce 14
+	LESS  reduce 14
+	GREATER  reduce 14
+	RP  reduce 14
+	EOL  reduce 14
+
+
+45: shift/reduce conflict (shift 22, reduce 15) on NOT_EQUAL
+state 45
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr GREATER expr .  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+
+	NOT_EQUAL  shift 22
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	EQUAL  reduce 15
+	THEN  reduce 15
+	ELSE  reduce 15
+	GREATER_EQUAL  reduce 15
+	LESS_EQUAL  reduce 15
+	LESS  reduce 15
+	GREATER  reduce 15
+	RP  reduce 15
+	EOL  reduce 15
+
+
+46: shift/reduce conflict (shift 22, reduce 8) on NOT_EQUAL
+state 46
 	expr : expr . PLUS expr  (8)
 	expr : expr PLUS expr .  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
 
-	TIMES  shift 22
-	DIV  shift 23
+	NOT_EQUAL  shift 22
+	TIMES  shift 29
+	DIV  shift 30
+	EQUAL  reduce 8
 	THEN  reduce 8
 	ELSE  reduce 8
+	GREATER_EQUAL  reduce 8
+	LESS_EQUAL  reduce 8
+	LESS  reduce 8
+	GREATER  reduce 8
 	PLUS  reduce 8
 	MINUS  reduce 8
 	RP  reduce 8
 	EOL  reduce 8
 
 
-state 34
+47: shift/reduce conflict (shift 22, reduce 9) on NOT_EQUAL
+state 47
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr MINUS expr .  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
 
-	TIMES  shift 22
-	DIV  shift 23
+	NOT_EQUAL  shift 22
+	TIMES  shift 29
+	DIV  shift 30
+	EQUAL  reduce 9
 	THEN  reduce 9
 	ELSE  reduce 9
+	GREATER_EQUAL  reduce 9
+	LESS_EQUAL  reduce 9
+	LESS  reduce 9
+	GREATER  reduce 9
 	PLUS  reduce 9
 	MINUS  reduce 9
 	RP  reduce 9
 	EOL  reduce 9
 
 
-state 35
+48: shift/reduce conflict (shift 22, reduce 10) on NOT_EQUAL
+state 48
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr TIMES expr .  (10)
 	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
 
-	.  reduce 10
+	NOT_EQUAL  shift 22
+	EQUAL  reduce 10
+	THEN  reduce 10
+	ELSE  reduce 10
+	GREATER_EQUAL  reduce 10
+	LESS_EQUAL  reduce 10
+	LESS  reduce 10
+	GREATER  reduce 10
+	PLUS  reduce 10
+	MINUS  reduce 10
+	TIMES  reduce 10
+	DIV  reduce 10
+	RP  reduce 10
+	EOL  reduce 10
 
 
-state 36
+49: shift/reduce conflict (shift 22, reduce 11) on NOT_EQUAL
+state 49
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
 	expr : expr DIV expr .  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
 
-	.  reduce 11
+	NOT_EQUAL  shift 22
+	EQUAL  reduce 11
+	THEN  reduce 11
+	ELSE  reduce 11
+	GREATER_EQUAL  reduce 11
+	LESS_EQUAL  reduce 11
+	LESS  reduce 11
+	GREATER  reduce 11
+	PLUS  reduce 11
+	MINUS  reduce 11
+	TIMES  reduce 11
+	DIV  reduce 11
+	RP  reduce 11
+	EOL  reduce 11
 
 
-state 37
-	cargs : cargs simple_expr .  (19)
+state 50
+	cargs : cargs simple_expr .  (26)
 
-	.  reduce 19
+	.  reduce 26
 
 
-38: shift/reduce conflict (shift 20, reduce 7) on PLUS
-38: shift/reduce conflict (shift 21, reduce 7) on MINUS
-38: shift/reduce conflict (shift 22, reduce 7) on TIMES
-38: shift/reduce conflict (shift 23, reduce 7) on DIV
-state 38
+51: shift/reduce conflict (shift 21, reduce 7) on EQUAL
+51: shift/reduce conflict (shift 22, reduce 7) on NOT_EQUAL
+51: shift/reduce conflict (shift 23, reduce 7) on GREATER_EQUAL
+51: shift/reduce conflict (shift 24, reduce 7) on LESS_EQUAL
+51: shift/reduce conflict (shift 25, reduce 7) on LESS
+51: shift/reduce conflict (shift 26, reduce 7) on GREATER
+51: shift/reduce conflict (shift 27, reduce 7) on PLUS
+51: shift/reduce conflict (shift 28, reduce 7) on MINUS
+51: shift/reduce conflict (shift 29, reduce 7) on TIMES
+51: shift/reduce conflict (shift 30, reduce 7) on DIV
+state 51
 	expr : FUN fargs ARROW expr .  (7)
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
 
-	PLUS  shift 20
-	MINUS  shift 21
-	TIMES  shift 22
-	DIV  shift 23
+	EQUAL  shift 21
+	NOT_EQUAL  shift 22
+	GREATER_EQUAL  shift 23
+	LESS_EQUAL  shift 24
+	LESS  shift 25
+	GREATER  shift 26
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
 	THEN  reduce 7
 	ELSE  reduce 7
 	RP  reduce 7
 	EOL  reduce 7
 
 
-state 39
+state 52
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
-	expr : IF expr THEN expr . ELSE expr  (12)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+	expr : IF expr THEN expr . ELSE expr  (18)
 
-	ELSE  shift 42
-	PLUS  shift 20
-	MINUS  shift 21
-	TIMES  shift 22
-	DIV  shift 23
+	EQUAL  shift 21
+	ELSE  shift 55
+	NOT_EQUAL  shift 22
+	GREATER_EQUAL  shift 23
+	LESS_EQUAL  shift 24
+	LESS  shift 25
+	GREATER  shift 26
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
 	.  error
 
 
-state 40
+53: shift/reduce conflict (shift 22, reduce 20) on NOT_EQUAL
+state 53
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
-	expr : LET ID EQUAL expr .  (14)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+	expr : LET ID EQUAL expr .  (20)
 
-	PLUS  shift 20
-	MINUS  shift 21
-	TIMES  shift 22
-	DIV  shift 23
-	THEN  reduce 14
-	ELSE  reduce 14
-	RP  reduce 14
-	EOL  reduce 14
+	EQUAL  shift 21
+	NOT_EQUAL  shift 22
+	GREATER_EQUAL  shift 23
+	LESS_EQUAL  shift 24
+	LESS  shift 25
+	GREATER  shift 26
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	THEN  reduce 20
+	ELSE  reduce 20
+	RP  reduce 20
+	EOL  reduce 20
 
 
-state 41
-	expr : LET ID fargs EQUAL . expr  (15)
+state 54
+	expr : LET ID fargs EQUAL . expr  (21)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
 
-	expr  goto 43
-	simple_expr  goto 12
+	expr  goto 56
+	simple_expr  goto 13
 
 
-state 42
-	expr : IF expr THEN expr ELSE . expr  (12)
+state 55
+	expr : IF expr THEN expr ELSE . expr  (18)
 
-	NUM  shift 3
-	ID  shift 4
-	FUN  shift 5
-	IF  shift 6
-	LET  shift 7
-	MINUS  shift 8
-	LP  shift 9
+	error  shift 3
+	NUM  shift 4
+	ID  shift 5
+	FUN  shift 6
+	IF  shift 7
+	LET  shift 8
+	MINUS  shift 9
+	LP  shift 10
 	.  error
 
-	expr  goto 44
-	simple_expr  goto 12
+	expr  goto 57
+	simple_expr  goto 13
 
 
-state 43
+56: shift/reduce conflict (shift 22, reduce 21) on NOT_EQUAL
+state 56
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
-	expr : LET ID fargs EQUAL expr .  (15)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+	expr : LET ID fargs EQUAL expr .  (21)
 
-	PLUS  shift 20
-	MINUS  shift 21
-	TIMES  shift 22
-	DIV  shift 23
-	THEN  reduce 15
-	ELSE  reduce 15
-	RP  reduce 15
-	EOL  reduce 15
+	EQUAL  shift 21
+	NOT_EQUAL  shift 22
+	GREATER_EQUAL  shift 23
+	LESS_EQUAL  shift 24
+	LESS  shift 25
+	GREATER  shift 26
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	THEN  reduce 21
+	ELSE  reduce 21
+	RP  reduce 21
+	EOL  reduce 21
 
 
-state 44
+57: shift/reduce conflict (shift 22, reduce 18) on NOT_EQUAL
+state 57
 	expr : expr . PLUS expr  (8)
 	expr : expr . MINUS expr  (9)
 	expr : expr . TIMES expr  (10)
 	expr : expr . DIV expr  (11)
-	expr : IF expr THEN expr ELSE expr .  (12)
+	expr : expr . EQUAL expr  (12)
+	expr : expr . NOT_EQUAL expr  (13)
+	expr : expr . LESS expr  (14)
+	expr : expr . GREATER expr  (15)
+	expr : expr . LESS_EQUAL expr  (16)
+	expr : expr . GREATER_EQUAL expr  (17)
+	expr : IF expr THEN expr ELSE expr .  (18)
 
-	PLUS  shift 20
-	MINUS  shift 21
-	TIMES  shift 22
-	DIV  shift 23
-	THEN  reduce 12
-	ELSE  reduce 12
-	RP  reduce 12
-	EOL  reduce 12
+	EQUAL  shift 21
+	NOT_EQUAL  shift 22
+	GREATER_EQUAL  shift 23
+	LESS_EQUAL  shift 24
+	LESS  shift 25
+	GREATER  shift 26
+	PLUS  shift 27
+	MINUS  shift 28
+	TIMES  shift 29
+	DIV  shift 30
+	THEN  reduce 18
+	ELSE  reduce 18
+	RP  reduce 18
+	EOL  reduce 18
 
 
-State 38 contains 4 shift/reduce conflicts.
+State 18 contains 1 shift/reduce conflict.
+State 40 contains 1 shift/reduce conflict.
+State 41 contains 10 shift/reduce conflicts.
+State 42 contains 1 shift/reduce conflict.
+State 43 contains 1 shift/reduce conflict.
+State 44 contains 1 shift/reduce conflict.
+State 45 contains 1 shift/reduce conflict.
+State 46 contains 1 shift/reduce conflict.
+State 47 contains 1 shift/reduce conflict.
+State 48 contains 1 shift/reduce conflict.
+State 49 contains 1 shift/reduce conflict.
+State 51 contains 10 shift/reduce conflicts.
+State 53 contains 1 shift/reduce conflict.
+State 56 contains 1 shift/reduce conflict.
+State 57 contains 1 shift/reduce conflict.
 
 
-27 terminals, 7 nonterminals
-22 grammar rules, 45 states
+33 terminals, 7 nonterminals
+29 grammar rules, 58 states

@@ -4,7 +4,7 @@ exception Eof
 }
 
 let digit = ['0'-'9']
-let id = ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9']*
+let id = ['a'-'z' '_'] ['a'-'z' 'A'-'Z' '0'-'9']*
 
 rule token = parse
   | digit+ as num { NUM (int_of_string num) }
@@ -14,10 +14,14 @@ rule token = parse
   | "then" { THEN }
   | "else" { ELSE }
   | "in" { IN }
-  | id as text { ID text }
   | '\"'[^'\"']*'\"' as str { STR str }
   | "->" { ARROW }
   | "=" { EQUAL }
+  | "<>" { NOT_EQUAL }
+  | "<=" { LESS_EQUAL }
+  | ">=" { GREATER_EQUAL }
+  | "<" { LESS }
+  | ">" { GREATER }
   | ";" { SEMICOLON }
   | "+" { PLUS }
   | "-" { MINUS }
@@ -28,4 +32,5 @@ rule token = parse
   | "," { COMMA }
   | [' ' '\t'] { token lexbuf }
   | ['\n'] { EOL }
+  | id as text { ID text }
   | eof { raise Eof }

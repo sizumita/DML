@@ -1,7 +1,7 @@
 let () =
   Printexc.print (fun () ->
       try
-        let lexbuf = Lexing.from_string "let p a b = if a then b else 1\n" in
+        let lexbuf = Lexing.from_string "let p a b = if a > b then 2 else 1\n" in
         while true do
           let result = Parser.prog Lexer.token lexbuf in
           Ast.print_expr result

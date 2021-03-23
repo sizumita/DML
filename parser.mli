@@ -11,6 +11,11 @@ type token =
   | ELSE
   | LET
   | IN
+  | NOT_EQUAL
+  | GREATER_EQUAL
+  | LESS_EQUAL
+  | LESS
+  | GREATER
   | PLUS
   | MINUS
   | TIMES
