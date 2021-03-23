@@ -7,7 +7,11 @@ let digit = ['0'-'9']
 let id = ['a'-'z' '_'] ['a'-'z' 'A'-'Z' '0'-'9']*
 
 rule token = parse
+  | [' ' '\t'] { token lexbuf }
   | digit+ as num { NUM (int_of_string num) }
+  | "(*"
+    { comment lexbuf; (* ネストしたコメントのためのトリック *)
+      token lexbuf }
   | "fun" { FUN }
   | "let" { LET }
   | "if" { IF }
@@ -30,7 +34,13 @@ rule token = parse
   | "(" { LP }
   | ")" { RP }
   | "," { COMMA }
-  | [' ' '\t'] { token lexbuf }
   | ['\n'] { EOL }
   | id as text { ID text }
   | eof { raise Eof }
+and comment = parse
+  | "*)" { () }
+  | "(*"
+    { comment lexbuf;
+      comment lexbuf }
+  | eof { Format.eprintf "warning: unterminated comment@." }
+  | _ { comment lexbuf }

@@ -6,6 +6,7 @@ and expr =
   | Unit
   | Var of id
   | Int of int
+  | Bool of bool
 
 let print_expr exp =
   let rec loop exp' =
@@ -16,4 +17,5 @@ let print_expr exp =
       | Unit -> "()"
       | Var x -> "Var:" ^ x
       | Int x -> "Int:" ^ (string_of_int x)
+      | Bool x -> if x then "Bool:True" else "Bool:False"
   in print_endline @@ loop exp
