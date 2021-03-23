@@ -1,0 +1,383 @@
+   0  $accept : %entry% $end
+
+   1  prog : expr EOL
+
+   2  simple_expr : NUM
+   3              | ID
+   4              | LP expr RP
+   5              | LP RP
+
+   6  expr : simple_expr
+   7       | FUN fargs ARROW expr
+   8       | expr PLUS expr
+   9       | expr MINUS expr
+  10       | expr TIMES expr
+  11       | expr DIV expr
+  12       | MINUS expr
+  13       | simple_expr cargs
+
+  14  fargs : fargs ID
+  15        | ID
+
+  16  cargs : cargs simple_expr
+  17        | simple_expr
+
+  18  %entry% : '\001' prog
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . prog  (18)
+
+	NUM  shift 3
+	ID  shift 4
+	FUN  shift 5
+	MINUS  shift 6
+	LP  shift 7
+	.  error
+
+	prog  goto 8
+	expr  goto 9
+	simple_expr  goto 10
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	simple_expr : NUM .  (2)
+
+	.  reduce 2
+
+
+state 4
+	simple_expr : ID .  (3)
+
+	.  reduce 3
+
+
+state 5
+	expr : FUN . fargs ARROW expr  (7)
+
+	ID  shift 11
+	.  error
+
+	fargs  goto 12
+
+
+state 6
+	expr : MINUS . expr  (12)
+
+	NUM  shift 3
+	ID  shift 4
+	FUN  shift 5
+	MINUS  shift 6
+	LP  shift 7
+	.  error
+
+	expr  goto 13
+	simple_expr  goto 10
+
+
+state 7
+	simple_expr : LP . expr RP  (4)
+	simple_expr : LP . RP  (5)
+
+	NUM  shift 3
+	ID  shift 4
+	FUN  shift 5
+	MINUS  shift 6
+	RP  shift 14
+	LP  shift 7
+	.  error
+
+	expr  goto 15
+	simple_expr  goto 10
+
+
+state 8
+	%entry% : '\001' prog .  (18)
+
+	.  reduce 18
+
+
+state 9
+	prog : expr . EOL  (1)
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+
+	PLUS  shift 16
+	MINUS  shift 17
+	TIMES  shift 18
+	DIV  shift 19
+	EOL  shift 20
+	.  error
+
+
+state 10
+	expr : simple_expr .  (6)
+	expr : simple_expr . cargs  (13)
+
+	NUM  shift 3
+	ID  shift 4
+	LP  shift 7
+	PLUS  reduce 6
+	MINUS  reduce 6
+	TIMES  reduce 6
+	DIV  reduce 6
+	RP  reduce 6
+	EOL  reduce 6
+
+	simple_expr  goto 21
+	cargs  goto 22
+
+
+state 11
+	fargs : ID .  (15)
+
+	.  reduce 15
+
+
+state 12
+	expr : FUN fargs . ARROW expr  (7)
+	fargs : fargs . ID  (14)
+
+	ID  shift 23
+	ARROW  shift 24
+	.  error
+
+
+state 13
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+	expr : MINUS expr .  (12)
+
+	.  reduce 12
+
+
+state 14
+	simple_expr : LP RP .  (5)
+
+	.  reduce 5
+
+
+state 15
+	simple_expr : LP expr . RP  (4)
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+
+	PLUS  shift 16
+	MINUS  shift 17
+	TIMES  shift 18
+	DIV  shift 19
+	RP  shift 25
+	.  error
+
+
+state 16
+	expr : expr PLUS . expr  (8)
+
+	NUM  shift 3
+	ID  shift 4
+	FUN  shift 5
+	MINUS  shift 6
+	LP  shift 7
+	.  error
+
+	expr  goto 26
+	simple_expr  goto 10
+
+
+state 17
+	expr : expr MINUS . expr  (9)
+
+	NUM  shift 3
+	ID  shift 4
+	FUN  shift 5
+	MINUS  shift 6
+	LP  shift 7
+	.  error
+
+	expr  goto 27
+	simple_expr  goto 10
+
+
+state 18
+	expr : expr TIMES . expr  (10)
+
+	NUM  shift 3
+	ID  shift 4
+	FUN  shift 5
+	MINUS  shift 6
+	LP  shift 7
+	.  error
+
+	expr  goto 28
+	simple_expr  goto 10
+
+
+state 19
+	expr : expr DIV . expr  (11)
+
+	NUM  shift 3
+	ID  shift 4
+	FUN  shift 5
+	MINUS  shift 6
+	LP  shift 7
+	.  error
+
+	expr  goto 29
+	simple_expr  goto 10
+
+
+state 20
+	prog : expr EOL .  (1)
+
+	.  reduce 1
+
+
+state 21
+	cargs : simple_expr .  (17)
+
+	.  reduce 17
+
+
+state 22
+	expr : simple_expr cargs .  (13)
+	cargs : cargs . simple_expr  (16)
+
+	NUM  shift 3
+	ID  shift 4
+	LP  shift 7
+	PLUS  reduce 13
+	MINUS  reduce 13
+	TIMES  reduce 13
+	DIV  reduce 13
+	RP  reduce 13
+	EOL  reduce 13
+
+	simple_expr  goto 30
+
+
+state 23
+	fargs : fargs ID .  (14)
+
+	.  reduce 14
+
+
+state 24
+	expr : FUN fargs ARROW . expr  (7)
+
+	NUM  shift 3
+	ID  shift 4
+	FUN  shift 5
+	MINUS  shift 6
+	LP  shift 7
+	.  error
+
+	expr  goto 31
+	simple_expr  goto 10
+
+
+state 25
+	simple_expr : LP expr RP .  (4)
+
+	.  reduce 4
+
+
+state 26
+	expr : expr . PLUS expr  (8)
+	expr : expr PLUS expr .  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+
+	TIMES  shift 18
+	DIV  shift 19
+	PLUS  reduce 8
+	MINUS  reduce 8
+	RP  reduce 8
+	EOL  reduce 8
+
+
+state 27
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr MINUS expr .  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+
+	TIMES  shift 18
+	DIV  shift 19
+	PLUS  reduce 9
+	MINUS  reduce 9
+	RP  reduce 9
+	EOL  reduce 9
+
+
+state 28
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr TIMES expr .  (10)
+	expr : expr . DIV expr  (11)
+
+	.  reduce 10
+
+
+state 29
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+	expr : expr DIV expr .  (11)
+
+	.  reduce 11
+
+
+state 30
+	cargs : cargs simple_expr .  (16)
+
+	.  reduce 16
+
+
+31: shift/reduce conflict (shift 16, reduce 7) on PLUS
+31: shift/reduce conflict (shift 17, reduce 7) on MINUS
+31: shift/reduce conflict (shift 18, reduce 7) on TIMES
+31: shift/reduce conflict (shift 19, reduce 7) on DIV
+state 31
+	expr : FUN fargs ARROW expr .  (7)
+	expr : expr . PLUS expr  (8)
+	expr : expr . MINUS expr  (9)
+	expr : expr . TIMES expr  (10)
+	expr : expr . DIV expr  (11)
+
+	PLUS  shift 16
+	MINUS  shift 17
+	TIMES  shift 18
+	DIV  shift 19
+	RP  reduce 7
+	EOL  reduce 7
+
+
+State 31 contains 4 shift/reduce conflicts.
+
+
+18 terminals, 7 nonterminals
+19 grammar rules, 32 states

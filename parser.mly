@@ -14,6 +14,7 @@ open Ast
 %left PLUS MINUS
 %left TIMES DIV
 %nonassoc UMINUS
+%left prec_app
 
 %start prog
 
@@ -22,25 +23,27 @@ open Ast
 prog : expr EOL { $1 }
      ;
 
-expr : NUM { IntExp $1 }
-     | ID { VarExp (Var $1) }
-     | LP RP { Unit }
+simple_expr : NUM { Int $1 }
+            | ID { Var $1 }
+            | LP expr RP { $2 }
+            | LP RP { Unit }
+
+expr : 
+     | simple_expr { $1 }
      | FUN fargs ARROW expr { Fun ($2, $4) }
-     | expr PLUS expr { Call ("+", [$1; $3]) }
-     | expr MINUS expr { Call ("-", [$1; $3]) }
-     | expr TIMES expr { Call ("*", [$1; $3]) }
-     | expr DIV expr { Call ("/", [$1; $3]) }
-     | LP expr RP { $2 }
-     | MINUS expr %prec UMINUS { Call ("-", [IntExp (0); $2]) }
-     | ID cargs { Call ($1, $2) }
-     | expr cargs { CallNoname ($1, $2) }
+     | expr PLUS expr { Call (Var ("+"), [$1; $3]) }
+     | expr MINUS expr { Call (Var ("-"), [$1; $3]) }
+     | expr TIMES expr { Call (Var ("*"), [$1; $3]) }
+     | expr DIV expr { Call (Var ("/"), [$1; $3]) }
+     | MINUS expr %prec UMINUS { Call (Var ("-"), [Int (0); $2]) }
+     | simple_expr cargs %prec prec_app { Call ($1, $2) }
      ;
 
-fargs : fargs ID { $1@[$2] }
+fargs : fargs ID { $1 @ [$2] }
       | ID { [$1] }
       ;
 
-cargs : cargs expr { $1@[$2] }
-      | expr { [$1] }
+cargs : cargs simple_expr %prec prec_app { $1 @ [$2] }
+      | simple_expr %prec prec_app{ [$1] }
 
 %%
