@@ -3,6 +3,9 @@
 open Printf
 open Ast
 
+let fold_fun args exp =
+     List.fold_left (fun a b -> Fun (b, a)) exp args
+
 %}
 %token <int> NUM
 %token <string> STR ID
@@ -35,7 +38,7 @@ simple_expr : NUM { Int $1 }
 
 expr : 
      | simple_expr { $1 }
-     | FUN fargs ARROW expr { Fun ($2, $4) }
+     | FUN fargs ARROW expr { fold_fun $2 $4 }
      | expr PLUS expr { Call (Var ("+"), [$1; $3]) }
      | expr MINUS expr { Call (Var ("-"), [$1; $3]) }
      | expr TIMES expr { Call (Var ("*"), [$1; $3]) }
@@ -49,7 +52,7 @@ expr :
      | IF expr THEN expr ELSE expr %prec prec_if { Call (Var ("if"), [$2; $4; $6])}
      | MINUS expr %prec UMINUS { Call (Var ("-"), [Int (0); $2]) }
      | LET ID EQUAL expr %prec prec_let { Assign ($2, $4) }
-     | LET ID fargs EQUAL expr %prec prec_let { Assign ($2, Fun ($3, $5))}
+     | LET ID fargs EQUAL expr %prec prec_let { Assign ($2, fold_fun $3 $5)}
      | simple_expr cargs %prec prec_app { Call ($1, $2) }
      | error
      { failwith 
