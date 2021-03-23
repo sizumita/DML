@@ -1,7 +1,11 @@
 type token =
+  | BOOL of (bool)
   | NUM of (int)
   | STR of (string)
   | ID of (string)
+  | SPACE of (string)
+  | FLOAT of (float)
+  | NOT
   | FUN
   | ARROW
   | EQUAL
@@ -16,6 +20,7 @@ type token =
   | LESS_EQUAL
   | LESS
   | GREATER
+  | NAMESPACE
   | PLUS
   | MINUS
   | TIMES

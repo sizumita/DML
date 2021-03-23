@@ -7,9 +7,13 @@ let fold_fun args exp =
      List.fold_left (fun a b -> Fun (b, a)) exp args
 
 %}
+
+%token <bool> BOOL
 %token <int> NUM
-%token <string> STR ID
-%token FUN ARROW EQUAL SEMICOLON IF THEN ELSE LET EQUAL IN NOT_EQUAL GREATER_EQUAL LESS_EQUAL GREATER_EQUAL LESS GREATER
+%token <string> STR ID SPACE
+%token <float> FLOAT
+%token NOT
+%token FUN ARROW EQUAL SEMICOLON IF THEN ELSE LET EQUAL IN NOT_EQUAL GREATER_EQUAL LESS_EQUAL GREATER_EQUAL LESS GREATER NAMESPACE
 %token PLUS MINUS TIMES DIV RP LP COMMA
 %token EOL
 %type <Ast.expr> prog
@@ -23,6 +27,7 @@ let fold_fun args exp =
 %left TIMES DIV
 %nonassoc UMINUS
 %left prec_app
+%left NAMESPACE
 
 %start prog
 
@@ -31,14 +36,18 @@ let fold_fun args exp =
 prog : expr EOL { $1 }
      ;
 
-simple_expr : NUM { Int $1 }
-            | ID { Var $1 }
+simple_expr : NUM        { Int $1 }
+            | ID         { Var $1 }
             | LP expr RP { $2 }
-            | LP RP { Unit }
+            | LP RP      { Unit }
+            | BOOL       { Bool $1 }
+            | FLOAT      { Float $1 }
+            | SPACE NAMESPACE ID { NameSpace ($1, $3) }
 
-expr : 
+expr :
      | simple_expr { $1 }
      | FUN fargs ARROW expr { fold_fun $2 $4 }
+     | NOT expr { Call (Var "!", [$2]) }
      | expr PLUS expr { Call (Var ("+"), [$1; $3]) }
      | expr MINUS expr { Call (Var ("-"), [$1; $3]) }
      | expr TIMES expr { Call (Var ("*"), [$1; $3]) }
@@ -55,17 +64,17 @@ expr :
      | LET ID fargs EQUAL expr %prec prec_let { Assign ($2, fold_fun $3 $5)}
      | simple_expr cargs %prec prec_app { Call ($1, $2) }
      | error
-     { failwith 
-          (Printf.sprintf "parse error near characters %d-%d"
-               (Parsing.symbol_start ())
-               (Parsing.symbol_end ())) }
+          { failwith 
+               (Printf.sprintf "parse error near characters %d-%d"
+                    (Parsing.symbol_start ())
+                    (Parsing.symbol_end ())) }
      ;
 
 fargs : fargs ID { $1@ [$2] }
-      | ID { [$1] }
+      | ID       { [$1] }
       ;
 
 cargs : cargs simple_expr %prec prec_app { $1 @ [$2] }
-      | simple_expr %prec prec_app{ [$1] }
+      | simple_expr %prec prec_app       { [$1] }
 
 %%

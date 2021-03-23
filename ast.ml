@@ -7,6 +7,8 @@ and expr =
   | Var of id
   | Int of int
   | Bool of bool
+  | Float of float
+  | NameSpace of id * id
 
 let print_expr exp =
   let rec loop exp' =
@@ -18,4 +20,6 @@ let print_expr exp =
       | Var x -> "Var:" ^ x
       | Int x -> "Int:" ^ (string_of_int x)
       | Bool x -> if x then "Bool:True" else "Bool:False"
+      | Float x -> "Float: " ^ (string_of_float x)
+      | NameSpace (a, b) -> a ^ "::" ^ b
   in print_endline @@ loop exp
