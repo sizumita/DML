@@ -10,6 +10,7 @@ type token =
   | THEN
   | ELSE
   | LET
+  | IN
   | PLUS
   | MINUS
   | TIMES

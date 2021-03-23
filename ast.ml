@@ -11,7 +11,7 @@ let print_expr exp =
   let rec loop exp' =
     match exp' with
       | Call (a, b) -> "Call(" ^ (loop a) ^ ", [" ^ (String.concat ", " (List.map loop b)) ^ "])"
-      | Fun (b, c) -> "Fun(" ^ (String.concat ", " b) ^ ", " ^ (loop c) ^ ")"
+      | Fun (b, c) -> "Fun([" ^ (String.concat ", " b) ^ "], " ^ (loop c) ^ ")"
       | Assign (a, b) -> "Assign(" ^ a ^ ", " ^ (loop b)
       | Unit -> "()"
       | Var x -> "Var:" ^ x

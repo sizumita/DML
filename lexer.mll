@@ -13,6 +13,7 @@ rule token = parse
   | "if" { IF }
   | "then" { THEN }
   | "else" { ELSE }
+  | "in" { IN }
   | id as text { ID text }
   | '\"'[^'\"']*'\"' as str { STR str }
   | "->" { ARROW }
