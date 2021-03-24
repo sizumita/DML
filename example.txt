@@ -1,6 +1,15 @@
 let send_info msg ch_name guild_name =
   Discord.create_message msg.channel ("チャンネル名: " + ch_name + "\nギルド名: " + guild_name)
 
+let lst = [1,2,3]
+let fl = 1.23
+let intr = 123
+let str = "123"
+let tupl = (1,2,3)
+let bool = false
+let unt = ()
+let fn = fun a -> a
+
 let main msg = {
   let ch_name = current_channel.name;
   let guild_name = current_guild.name;

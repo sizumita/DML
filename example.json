@@ -112,6 +112,114 @@
   },
   {
     "type": "assign",
+    "name": "lst",
+    "value": {
+      "type": "value",
+      "value": [
+        {
+          "type": "value",
+          "value": 1,
+          "t": "Integer"
+        },
+        {
+          "type": "value",
+          "value": 2,
+          "t": "Integer"
+        },
+        {
+          "type": "value",
+          "value": 3,
+          "t": "Integer"
+        }
+      ],
+      "t": "List"
+    }
+  },
+  {
+    "type": "assign",
+    "name": "fl",
+    "value": {
+      "type": "value",
+      "value": 1.230000,
+      "t": "Float"
+    }
+  },
+  {
+    "type": "assign",
+    "name": "intr",
+    "value": {
+      "type": "value",
+      "value": 123,
+      "t": "Integer"
+    }
+  },
+  {
+    "type": "assign",
+    "name": "str",
+    "value": {
+      "type": "value",
+      "value": "123",
+      "t": "String"
+    }
+  },
+  {
+    "type": "assign",
+    "name": "tupl",
+    "value": {
+      "type": "value",
+      "value": [
+        {
+          "type": "value",
+          "value": 1,
+          "t": "Integer"
+        },
+        {
+          "type": "value",
+          "value": 2,
+          "t": "Integer"
+        },
+        {
+          "type": "value",
+          "value": 3,
+          "t": "Integer"
+        }
+      ],
+      "t": "Tuple"
+    }
+  },
+  {
+    "type": "assign",
+    "name": "bool",
+    "value": {
+      "type": "value",
+      "value": false,
+      "t": "Bool"
+    }
+  },
+  {
+    "type": "assign",
+    "name": "unt",
+    "value": {
+      "type": "value",
+      "value": "()",
+      "t": "Unit"
+    }
+  },
+  {
+    "type": "assign",
+    "name": "fn",
+    "value": {
+      "type": "fun",
+      "content": {
+        "type": "var",
+        "name": "a",
+        "t": "'a"
+      },
+      "arg": "a"
+    }
+  },
+  {
+    "type": "assign",
     "name": "main",
     "value": {
       "type": "fun",
