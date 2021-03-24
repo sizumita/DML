@@ -6,7 +6,7 @@ let space = [' ' '\t' '\n' '\r']
 let digit = ['0'-'9']
 let lower = ['a'-'z']
 let upper = ['A'-'Z']
-let id = ['a'-'z' '_'] ['a'-'z' 'A'-'Z' '0'-'9']*
+let id = ['a'-'z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let space_name = upper (lower|upper|digit|'_')*
 
 rule token = parse
@@ -31,7 +31,6 @@ rule token = parse
   | '\"'[^'\"']*'\"' as str { STR str }
   | "->" { ARROW }
   | "=" { EQUAL }
-  | "::" { NAMESPACE }
   | "<>" { NOT_EQUAL }
   | "<=" { LESS_EQUAL }
   | ">=" { GREATER_EQUAL }
@@ -41,6 +40,7 @@ rule token = parse
   | "+" { PLUS }
   | "-" { MINUS }
   | "*" { TIMES }
+  | "." { DOT }
   | "/" { DIV }
   | "(" { LP }
   | ")" { RP }
@@ -52,6 +52,12 @@ rule token = parse
   | id as text { ID text }
   | space_name as text { SPACE text }
   | eof { EOF }
+  | _
+    { failwith
+        (Printf.sprintf "unknown token %s near characters %d-%d"
+           (Lexing.lexeme lexbuf)
+           (Lexing.lexeme_start lexbuf)
+           (Lexing.lexeme_end lexbuf)) }
 and comment = parse
   | "*)" { () }
   | "(*"

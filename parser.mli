@@ -19,7 +19,6 @@ type token =
   | LESS_EQUAL
   | LESS
   | GREATER
-  | NAMESPACE
   | LS
   | RS
   | LB
@@ -27,6 +26,7 @@ type token =
   | BAR
   | TYPE
   | OF
+  | DOT
   | PLUS
   | MINUS
   | TIMES

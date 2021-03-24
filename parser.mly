@@ -14,8 +14,8 @@ let fold_fun args exp =
 %token <float> FLOAT
 %token NOT
 %token FUN ARROW EQUAL SEMICOLON IF THEN ELSE LET 
-%token EQUAL NOT_EQUAL GREATER_EQUAL LESS_EQUAL GREATER_EQUAL LESS GREATER NAMESPACE
-%token LS RS LB RB BAR TYPE OF
+%token EQUAL NOT_EQUAL GREATER_EQUAL LESS_EQUAL GREATER_EQUAL LESS GREATER
+%token LS RS LB RB BAR TYPE OF DOT
 %token PLUS MINUS TIMES DIV RP LP COMMA
 %token EOF
 %type <Ast.expr list> prog
@@ -30,7 +30,7 @@ let fold_fun args exp =
 %left TIMES DIV
 %nonassoc UMINUS
 %left prec_app
-%left NAMESPACE
+%left DOT
 
 %start prog
 
@@ -47,14 +47,16 @@ tuple : LP elems RP { $2 }
 
 simple_expr : NUM        { Int $1 }
             | ID         { Var $1 }
+            | STR        { String $1 }
             | SPACE expr { TypeVar ($1, $2) }
             | LP expr RP { $2 }
             | LP RP      { Unit }
             | LP elems RP %prec prec_tuple { Tuple $2 }
             | BOOL       { Bool $1 }
             | FLOAT      { Float $1 }
-            | SPACE NAMESPACE ID { NameSpace ($1, $3) }
+            | SPACE DOT ID { Call (Var ("get"), [NameSpace $1; Var $3]) }
             | LS elems RS { List $2 }
+            | simple_expr DOT ID { Call (Var ("get"), [$1; Var $3])}
             ;
 
 
