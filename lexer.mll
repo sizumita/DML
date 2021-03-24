@@ -21,9 +21,12 @@ rule token = parse
   | "if" { IF }
   | "then" { THEN }
   | "else" { ELSE }
-  | "in" { IN }
   | "true" { BOOL(true) }
   | "false" { BOOL(false) }
+  | "type" { TYPE }
+  | "of" { OF }
+  | "\'a" as text { SPACE text }
+  | "|" { BAR }
   | "!" { NOT }
   | '\"'[^'\"']*'\"' as str { STR str }
   | "->" { ARROW }

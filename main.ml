@@ -5,5 +5,5 @@ let () =
     else stdin in
     let lexbuf =  Lexing.from_channel cin in
       let result = Parser.prog Lexer.token lexbuf in
-      Ast.print_expr result
+      Ast.to_json result
 

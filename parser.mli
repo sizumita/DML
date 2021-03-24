@@ -14,7 +14,6 @@ type token =
   | THEN
   | ELSE
   | LET
-  | IN
   | NOT_EQUAL
   | GREATER_EQUAL
   | LESS_EQUAL
@@ -25,6 +24,9 @@ type token =
   | RS
   | LB
   | RB
+  | BAR
+  | TYPE
+  | OF
   | PLUS
   | MINUS
   | TIMES
