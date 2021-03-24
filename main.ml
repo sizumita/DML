@@ -1,11 +1,9 @@
 let () =
-  Printexc.print (fun () ->
-      try
-        let lexbuf = Lexing.from_string "let p a b = if a > b (* nazo *) then Discord::send b else true\n" in
-        while true do
-          let result = Parser.prog Lexer.token lexbuf in
-          Ast.print_expr result
-        done
-      with
-        Lexer.Eof -> exit 0
-    ) ()
+  let cin =
+    if Array.length Sys.argv > 1
+    then open_in Sys.argv.(1)
+    else stdin in
+    let lexbuf =  Lexing.from_channel cin in
+      let result = Parser.prog Lexer.token lexbuf in
+      Ast.print_expr result
+

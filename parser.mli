@@ -21,6 +21,10 @@ type token =
   | LESS
   | GREATER
   | NAMESPACE
+  | LS
+  | RS
+  | LB
+  | RB
   | PLUS
   | MINUS
   | TIMES
@@ -28,7 +32,7 @@ type token =
   | RP
   | LP
   | COMMA
-  | EOL
+  | EOF
 
 val prog :
-  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.expr
+  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.expr list

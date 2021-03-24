@@ -1,6 +1,5 @@
 {
 open Parser
-exception Eof
 }
 
 let space = [' ' '\t' '\n' '\r']
@@ -8,10 +7,10 @@ let digit = ['0'-'9']
 let lower = ['a'-'z']
 let upper = ['A'-'Z']
 let id = ['a'-'z' '_'] ['a'-'z' 'A'-'Z' '0'-'9']*
-let space = upper (lower|upper|digit|'_')*
+let space_name = upper (lower|upper|digit|'_')*
 
 rule token = parse
-  | [' ' '\t'] { token lexbuf }
+  | space+ { token lexbuf }
   | digit+ as num { NUM (int_of_string num) }
   | digit+ ('.' digit*)? as num (['e' 'E'] ['+' '-']? digit+)? { FLOAT(float_of_string num) }
   | "(*"
@@ -42,11 +41,14 @@ rule token = parse
   | "/" { DIV }
   | "(" { LP }
   | ")" { RP }
+  | "{" { LB }
+  | "}" { RB }
+  | "[" { LS }
+  | "]" { RS }
   | "," { COMMA }
-  | ['\n'] { EOL }
-  | space as text { SPACE text }
   | id as text { ID text }
-  | eof { raise Eof }
+  | space_name as text { SPACE text }
+  | eof { EOF }
 and comment = parse
   | "*)" { () }
   | "(*"

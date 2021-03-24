@@ -1,1 +1,4 @@
-1 + 21+3
+let func a b = a b
+let main = {
+  let d e = e * 2; a d 5
+}
