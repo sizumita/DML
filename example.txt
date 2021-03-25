@@ -1,1 +1,2 @@
-let a = Discord.ast 1
+let main msg = msg.content
+let b = { content = "abc"; id = 123 }

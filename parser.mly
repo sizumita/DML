@@ -3,6 +3,9 @@
 open Printf
 open Ast
 
+let fold_fun args exp =
+      List.fold_left (fun a b -> Fun (b, a)) exp args
+
 %}
 
 %token <bool> BOOL
@@ -71,7 +74,8 @@ struct_values : struct_values SEMICOLON ID EQUAL simple_expr { $1 @ [($3, $5)] }
               ;
 
 
-stmt : LET ID fargs EQUAL expr %prec prec_let { Assign ($2, Fun ($3, $5)) }
+stmt : LET ID fargs EQUAL expr %prec prec_let { Assign ($2, fold_fun ($3, $5)) }
+     | LET ID LP RP EQUAL expr %prec prec_let { Assign ($2, Fun (["_"], $6)) }
      | LET ID EQUAL expr %prec prec_let { Assign ($2, $4) }
      | TYPE ID EQUAL types { Types ($2, $4) }
      | TYPE ALIAS ID EQUAL LB defstruct RB { StructType($3, $6) }
@@ -119,7 +123,7 @@ expr :
      | simple_expr cargs %prec prec_app { Call ($1, $2) }
      ;
 
-fargs : fargs ID { $1@ [$2] }
+fargs : fargs ID { $1 @ [$2] }
       | ID       { [$1] }
       ;
 

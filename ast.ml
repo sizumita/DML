@@ -35,7 +35,7 @@ let to_json exprs =
   let rec loop exp' =
     match exp' with
       | Call (a, b) -> Printf.sprintf "{\"type\":\"call\",\"func\": %s,\"args\":[%s]}" (loop a) (String.concat ", " (List.map loop b))
-      | Fun (b, c) -> Printf.sprintf "{\"type\":\"fun\",\"content\":%s,\"args\":[%s]}" (loop c) (String.concat "," (List.map (fun a -> "\"" ^ a ^ "\"") b))
+      | Fun (b, c) -> Printf.sprintf "{\"type\":\"fun\",\"content\":%s,\"args\":[%s], \"env\": {}}" (loop c) (String.concat "," (List.map (fun a -> "\"" ^ a ^ "\"") b))
       | Assign (name, value) -> Printf.sprintf "{\"type\":\"assign\",\"name\":\"%s\",\"value\":%s}" name @@ loop value
       | Unit -> "{\"type\":\"value\",\"value\":\"()\",\"t\":\"Unit\"}"
       | Var x -> Printf.sprintf "{\"type\":\"var\",\"name\":\"%s\", \"t\":\"'a\"}" x
