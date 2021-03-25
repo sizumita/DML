@@ -14,6 +14,7 @@ type token =
   | THEN
   | ELSE
   | LET
+  | COLON
   | NOT_EQUAL
   | GREATER_EQUAL
   | LESS_EQUAL
@@ -27,6 +28,7 @@ type token =
   | TYPE
   | OF
   | DOT
+  | ALIAS
   | PLUS
   | MINUS
   | TIMES

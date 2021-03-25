@@ -24,6 +24,7 @@ rule token = parse
   | "true" { BOOL(true) }
   | "false" { BOOL(false) }
   | "type" { TYPE }
+  | "alias" { ALIAS }
   | "of" { OF }
   | "\'a" as text { SPACE text }
   | "|" { BAR }
@@ -37,6 +38,7 @@ rule token = parse
   | "<" { LESS }
   | ">" { GREATER }
   | ";" { SEMICOLON }
+  | ":" { COLON }
   | "+" { PLUS }
   | "-" { MINUS }
   | "*" { TIMES }
