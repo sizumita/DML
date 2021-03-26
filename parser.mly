@@ -3,9 +3,6 @@
 open Printf
 open Ast
 
-let fold_fun args exp =
-      List.fold_left (fun a b -> Fun (b, a)) exp args
-
 %}
 
 %token <bool> BOOL
@@ -63,10 +60,9 @@ simple_expr : NUM        { Int $1 }
             | LP elems RP %prec prec_tuple { Tuple $2 }
             | BOOL       { Bool $1 }
             | FLOAT      { Float $1 }
-            | SPACE DOT ID { Call (Var ("get"), [NameSpace $1; String ("\"" ^ $3 ^ "\"")]) }
             | LS elems RS { List $2 }
             | LB struct_values RB { StructValue $2 }
-            | simple_expr DOT ID { Call (Var ("get"), [$1; String ("\"" ^ $3 ^ "\"")])}
+            | simple_expr DOT ID { BuildinCall (Var ("get"), [$1; String ("\"" ^ $3 ^ "\"")])}
             ;
 
 struct_values : struct_values SEMICOLON ID EQUAL simple_expr { $1 @ [($3, $5)] }
@@ -74,7 +70,7 @@ struct_values : struct_values SEMICOLON ID EQUAL simple_expr { $1 @ [($3, $5)] }
               ;
 
 
-stmt : LET ID fargs EQUAL expr %prec prec_let { Assign ($2, fold_fun ($3, $5)) }
+stmt : LET ID fargs EQUAL expr %prec prec_let { Assign ($2, Fun ($3, $5)) }
      | LET ID LP RP EQUAL expr %prec prec_let { Assign ($2, Fun (["_"], $6)) }
      | LET ID EQUAL expr %prec prec_let { Assign ($2, $4) }
      | TYPE ID EQUAL types { Types ($2, $4) }
@@ -108,19 +104,20 @@ expr :
      | block { $1 }
      | FUN fargs ARROW expr { Fun ($2, $4) }
      | NOT expr { Call (Var "!", [$2]) }
-     | expr PLUS expr { Call (Var ("+"), [$1; $3]) }
-     | expr MINUS expr { Call (Var ("-"), [$1; $3]) }
-     | expr TIMES expr { Call (Var ("*"), [$1; $3]) }
-     | expr DIV expr { Call (Var ("/"), [$1; $3]) }
-     | expr EQUAL expr { Call (Var ("="), [$1; $3]) }
-     | expr NOT_EQUAL expr { Call (Var ("<>"), [$1; $3]) }
-     | expr LESS expr { Call (Var ("<"), [$1; $3]) }
-     | expr GREATER expr { Call (Var (">"), [$1; $3]) }
-     | expr LESS_EQUAL expr { Call (Var ("<="), [$1; $3]) }
-     | expr GREATER_EQUAL expr { Call (Var (">="), [$1; $3]) }
-     | IF expr THEN expr ELSE expr %prec prec_if { Call (Var ("if"), [$2; $4; $6])}
-     | MINUS expr %prec UMINUS { Call (Var ("-"), [Int (0); $2]) }
+     | expr PLUS expr { BuildinCall (Var ("+"), [$1; $3]) }
+     | expr MINUS expr { BuildinCall (Var ("-"), [$1; $3]) }
+     | expr TIMES expr { BuildinCall (Var ("*"), [$1; $3]) }
+     | expr DIV expr { BuildinCall (Var ("/"), [$1; $3]) }
+     | expr EQUAL expr { BuildinCall (Var ("="), [$1; $3]) }
+     | expr NOT_EQUAL expr { BuildinCall (Var ("<>"), [$1; $3]) }
+     | expr LESS expr { BuildinCall (Var ("<"), [$1; $3]) }
+     | expr GREATER expr { BuildinCall (Var (">"), [$1; $3]) }
+     | expr LESS_EQUAL expr {BuildinCall (Var ("<="), [$1; $3]) }
+     | expr GREATER_EQUAL expr { BuildinCall (Var (">="), [$1; $3]) }
+     | IF expr THEN expr ELSE expr %prec prec_if { BuildinCall (Var ("if"), [$2; $4; $6])}
+     | MINUS expr %prec UMINUS { BuildinCall (Var ("-"), [Int (0); $2]) }
      | simple_expr cargs %prec prec_app { Call ($1, $2) }
+     | SPACE DOT ID cargs %prec prec_app { BuildinCall (Var ($1 ^ "_" ^ $3), $4) }
      ;
 
 fargs : fargs ID { $1 @ [$2] }

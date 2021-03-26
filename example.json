@@ -5,48 +5,23 @@
     "value": {
       "type": "fun",
       "content": {
-        "type": "call",
+        "type": "buildin_call",
         "func": {
           "type": "var",
-          "name": "get",
+          "name": "Msg_send",
           "t": "'a"
         },
         "args": [
           {
-            "type": "var",
-            "name": "msg",
-            "t": "'a"
-          },
-          {
             "type": "value",
-            "value": "content",
+            "value": "a",
             "t": "String"
           }
         ]
       },
       "args": [
         "msg"
-      ]
+      ],
+      "env": []
     }
-  },
-  {
-    "type": "assign",
-    "name": "b",
-    "value": {
-      "type": "value",
-      "value": {
-        "content": {
-          "type": "value",
-          "value": "abc",
-          "t": "String"
-        },
-        "id": {
-          "type": "value",
-          "value": 123,
-          "t": "Integer"
-        }
-      },
-      "t": "Struct"
-    }
-  }
-]
+  ]
