@@ -13,7 +13,7 @@ open Ast
 %token FUN ARROW EQUAL SEMICOLON IF THEN ELSE LET COLON
 %token EQUAL NOT_EQUAL GREATER_EQUAL LESS_EQUAL GREATER_EQUAL LESS GREATER
 %token LS RS LB RB BAR TYPE OF DOT ALIAS
-%token PLUS MINUS TIMES DIV RP LP COMMA
+%token PLUS MINUS TIMES DIV RP LP COMMA POW
 %token EOF
 %type <Ast.expr list> prog
 
@@ -26,7 +26,7 @@ open Ast
 %left COMMA
 %left EQUAL NOT_GREATER LESS GREATER LESS_EQUAL GREATER_EQUAL
 %left PLUS MINUS
-%left TIMES DIV
+%left TIMES DIV POW
 %nonassoc UMINUS
 %left prec_app
 %left DOT
@@ -73,7 +73,7 @@ struct_values : struct_values SEMICOLON ID EQUAL simple_expr { $1 @ [($3, $5)] }
 stmt : LET ID fargs EQUAL expr %prec prec_let { Assign ($2, Fun ($3, $5)) }
      | LET ID LP RP EQUAL expr %prec prec_let { Assign ($2, Fun (["_"], $6)) }
      | LET ID EQUAL expr %prec prec_let { Assign ($2, $4) }
-     | TYPE ID EQUAL types { Types ($2, $4) }
+     | TYPE SPACE EQUAL types { Types ($2, $4) }
      | TYPE ALIAS ID EQUAL LB defstruct RB { StructType($3, $6) }
      ;
 
@@ -107,6 +107,7 @@ expr :
      | expr PLUS expr { BuildinCall (Var ("+"), [$1; $3]) }
      | expr MINUS expr { BuildinCall (Var ("-"), [$1; $3]) }
      | expr TIMES expr { BuildinCall (Var ("*"), [$1; $3]) }
+     | expr POW expr { BuildinCall (Var ("**"), [$1; $3]) }
      | expr DIV expr { BuildinCall (Var ("/"), [$1; $3]) }
      | expr EQUAL expr { BuildinCall (Var ("="), [$1; $3]) }
      | expr NOT_EQUAL expr { BuildinCall (Var ("<>"), [$1; $3]) }

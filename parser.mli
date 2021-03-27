@@ -36,6 +36,7 @@ type token =
   | RP
   | LP
   | COMMA
+  | POW
   | EOF
 
 val prog :

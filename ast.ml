@@ -40,8 +40,8 @@ let to_json exprs =
       | Assign (name, value) -> Printf.sprintf "{\"type\":\"assign\",\"name\":\"%s\",\"value\":%s}" name @@ loop value
       | Unit -> "{\"type\":\"value\",\"value\":\"()\",\"t\":\"Unit\"}"
       | Var x -> Printf.sprintf "{\"type\":\"var\",\"name\":\"%s\", \"t\":\"'a\"}" x
-      | TypeVarof (x, y) -> Printf.sprintf "{\"type\":\"value\",\"value\":%s,\"t\": \"%s\"}" (loop y) x
-      | TypeVar x -> Printf.sprintf "{\"type\":\"value\",\"value\":null,\"t\": \"%s\"}"  x
+      | TypeVarof (x, y) -> Printf.sprintf "{\"type\":\"type_value\",\"value\":%s,\"t\": \"%s\"}" (loop y) x
+      | TypeVar x -> Printf.sprintf "{\"type\":\"type_value\",\"value\":null,\"t\": \"%s\"}"  x
       | Int x -> Printf.sprintf "{\"type\":\"value\",\"value\": %d,\"t\":\"Integer\"}" x
       | Bool x -> Printf.sprintf "{\"type\":\"value\",\"value\":%b,\"t\":\"Bool\"}" x
       | Float x -> Printf.sprintf "{\"type\":\"value\",\"value\":%f,\"t\":\"Float\"}" x 
